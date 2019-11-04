@@ -1,0 +1,36 @@
+Parameters:
+  adminUser:
+    Type: "String"
+    Description: "Admin name"
+    Default: "root"
+  adminPassword:
+    Type: "String"
+    Description: "Admin password"
+    Default: "admin123"
+  serverName:
+    Type: "String"
+    Description: "Database server name"
+
+Resources:
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join ["-",["RDS",!Ref "serverName"]]
+      GroupDescription: Enable HTTP access via port 80 and SSH access
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3306'
+        ToPort: '3306'
+        CidrIp: 0.0.0.0/0
+
+  MySqlDB:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      AllocatedStorage: "5"
+      DBInstanceClass: "db.t2.micro"
+      Engine: "MySQL"
+      MasterUsername: !Ref "adminUser"
+      MasterUserPassword: !Ref "adminPassword"
+      VPCSecurityGroups:
+      - !GetAtt "SecurityGroup.GroupId"
